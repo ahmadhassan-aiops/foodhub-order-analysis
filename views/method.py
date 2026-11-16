@@ -15,7 +15,7 @@ def render() -> None:
         "Data & method",
         "How the analysis was done",
         "The data, the cleaning decisions, the business questions and the limits of the study. The full Python "
-        f'work is in the <a href="{NOTEBOOK_URL}" target="_blank">original notebook</a>.',
+        f'work is in the <a href="{NOTEBOOK_URL}" target="_blank">notebook</a>.',
     )
 
     section("The data")

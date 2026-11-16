@@ -10,7 +10,7 @@ demand, delivery speed, ratings and commission revenue.
 - **Ratings, promotions & revenue**: ratings, an adjustable promotion rule and a commission calculator.
 - **Data & method**: cleaning decisions, the nine business questions, limits.
 
-Original notebook: [AIOPS-Portfolio-Projects / Online Restaurant Data Analysis](https://github.com/ahmadhassan-aiops/AIOPS-Portfolio-Projects/tree/main/1.%20Data-analysis-with-python-Projects/Online%20Restaurant%20Data%20Analysis)
+Notebook: [AIOPS-Portfolio-Projects / Online Restaurant Data Analysis](https://github.com/ahmadhassan-aiops/AIOPS-Portfolio-Projects/tree/main/1.%20Data-analysis-with-python-Projects/Online%20Restaurant%20Data%20Analysis)
 
 ## Run locally
 
