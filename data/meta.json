@@ -1,0 +1,15 @@
+{
+  "built": "2026-11-17",
+  "raw_shape": [
+    1898,
+    9
+  ],
+  "orders": 1898,
+  "customers": 1200,
+  "restaurants": 178,
+  "cuisines": 14,
+  "not_given": 736,
+  "missing": 0,
+  "duplicates": 0,
+  "commission_total": 6166.303
+}
