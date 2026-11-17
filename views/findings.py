@@ -2,8 +2,8 @@
 
 import streamlit as st
 
-from lib import data
-from lib.ui import cap, finding, footer, header, md
+from lib import charts, data
+from lib.ui import cap, finding, footer, header, method_card, recommendations, spotlight
 
 
 def render() -> None:
@@ -24,6 +24,8 @@ def render() -> None:
         f"FoodHub connects New York customers with {m['restaurants']} restaurants. I analysed {m['orders']:,} orders "
         "to find out where demand comes from, what slows deliveries down, what customers rate highly and how much "
         "the company earns, so the business can decide where to act first.",
+        chips=[("code", "Python, pandas"), ("bar_chart", "Plotly"), ("restaurant", "New York food delivery"),
+               ("receipt_long", f"{m['orders']:,} orders")],
     )
 
     c = st.columns(4)
@@ -32,13 +34,27 @@ def render() -> None:
     c[2].metric("Restaurants", m["restaurants"], border=True)
     c[3].metric("FoodHub revenue (commission)", f"${m['commission_total']:,.0f}", border=True)
 
+    g = dt.reindex(data.DAYS)
+    fig = charts.stacked_bars(
+        ["Weekday order", "Weekend order"],
+        {"In the kitchen (preparation)": g["food_preparation_time"].round(1), "On the road (delivery)": g["delivery_time"].round(1)},
+        colors=[charts.QUIET, charts.BLUE], hover_fmt=".1f", unit=" min", ytitle="Minutes per order", height=340,
+    )
+    fig.update_traces(texttemplate="%{y:.0f} min", textposition="inside", insidetextanchor="middle",
+                      textfont=dict(size=13))
+    spotlight("Where an order's time goes",
+              f"Average minutes from order to door. Kitchens take the same "
+              f"{g['food_preparation_time'].mean():.0f} minutes every day; the <b>road</b> is what makes weekday "
+              f"orders {g.loc['Weekday', 'delivery_time'] - g.loc['Weekend', 'delivery_time']:.0f} minutes slower.",
+              fig, key="spot")
+
     st.subheader("Key findings", anchor=False)
     a = st.columns(3)
     finding(
         a[0], f"{wk:.0%}", "of orders are placed at the weekend",
         "Demand is a weekend business",
         f"Per day, a weekend day brings about <b>{per_day:.0f} times</b> as many orders as a weekday.",
-        DEMAND, "Orders & cuisines",
+        DEMAND, "Orders & cuisines", card_icon="event",
     )
     finding(
         a[1], f"+{dt.loc['Weekday', 'delivery_time'] - dt.loc['Weekend', 'delivery_time']:.1f} min",
@@ -47,14 +63,14 @@ def render() -> None:
         f"Delivery takes {dt.loc['Weekday', 'delivery_time']:.1f} min on weekdays against "
         f"{dt.loc['Weekend', 'delivery_time']:.1f} at weekends, while kitchen time is the same "
         f"(about {dt['food_preparation_time'].mean():.0f} min).",
-        DELIVERY, "Preparation & delivery",
+        DELIVERY, "Preparation & delivery", card_icon="two_wheeler",
     )
     finding(
         a[2], f"{top4.sum() / len(d):.0%}", "of orders come from four cuisines",
         "American, Japanese, Italian and Chinese dominate",
         f"{', '.join(top4.index)}. The top 5 restaurants alone take "
         f"{d['restaurant_name'].value_counts().head(5).sum() / len(d):.0%} of all orders.",
-        DEMAND, "Cuisines and restaurants",
+        DEMAND, "Cuisines and restaurants", card_icon="ramen_dining",
     )
     b = st.columns(3)
     finding(
@@ -62,36 +78,35 @@ def render() -> None:
         "orders over $20 → their share of FoodHub's revenue",
         "Larger orders carry the business",
         "The 25% fee on orders over $20 earns more than the 15% fee on everything else combined.",
-        RATINGS, "Revenue calculator",
+        RATINGS, "Revenue calculator", card_icon="payments",
     )
     finding(
         b[1], f"{unrated:.0%}", "of orders are never rated",
         "Ratings are missing, and don't track speed or price",
         "Rated orders score 3 to 5 stars, and the average delivery time and cost are almost identical across those "
         "ratings, so ratings reflect the food more than the service.",
-        RATINGS, "Ratings",
+        RATINGS, "Ratings", card_icon="star_half",
     )
     finding(
         b[2], f"{(d['total_time'] > 60).mean():.1%}", "of orders take more than an hour in total",
         "One order in ten is very slow",
         "Preparation plus delivery goes past 60 minutes for about one order in ten, more often on weekdays.",
-        DELIVERY, "Total time",
+        DELIVERY, "Total time", card_icon="hourglass_bottom",
     )
 
     st.subheader("What I would recommend", anchor=False)
-    md(
-        "1. **Add delivery capacity on weekdays.** Kitchens are not the bottleneck; "
-        "deliveries are.\n"
-        "2. **Grow weekday demand with weekday-only offers** on the four big cuisines, where customers already are.\n"
-        "3. **Ask for ratings at the right moment** (for example right after delivery, with a small incentive): "
-        "four in ten orders give no feedback at all.\n"
-        "4. **Protect the top restaurants and larger baskets.** A handful of restaurants and the orders over $20 "
-        "carry most of the revenue; promotions (see the eligible restaurants) should keep them on the platform."
-    )
+    recommendations([
+        ("two_wheeler", "Add delivery capacity on weekdays", "Kitchens are not the bottleneck; deliveries are."),
+        ("local_offer", "Grow weekday demand", "Weekday-only offers on the four big cuisines, where customers already are."),
+        ("star", "Ask for ratings at the right moment",
+         "Right after delivery, perhaps with a small incentive: <b>four in ten orders</b> give no feedback at all."),
+        ("storefront", "Protect top restaurants and larger baskets",
+         "A handful of restaurants and the orders over $20 carry most of the revenue; promotions should keep them on "
+         "the platform."),
+    ])
     cap("One snapshot of 1,898 orders without dates or locations; recommendations are hypotheses to test.")
-    with st.container(border=True):
-        md("**How this was done.** The order table was checked, cleaned (unrated orders kept as missing, not zero) "
-           "and analysed against the business's questions on demand, speed, ratings and revenue.")
-        st.page_link(METHOD, label="Data & method", icon=":material/arrow_forward:")
+    method_card("<b>How this was done.</b> The order table was checked, cleaned (unrated orders kept as missing, "
+                "not zero) and analysed against the business's questions on demand, speed, ratings and revenue.",
+                METHOD, tools=["pandas", "NumPy", "Plotly", "Descriptive statistics"])
 
     footer()
