@@ -45,7 +45,7 @@ def render() -> None:
     st.dataframe(ok.reset_index().rename(columns={"restaurant_name": "Restaurant", "count": "Ratings",
                                                   "average": "Average rating"}),
                  hide_index=True, column_config={"Average rating": st.column_config.NumberColumn(format="%.2f")})
-    cap(f"{len(ok)} restaurants qualify. With the original rule (more than 50 ratings, average above 4) these are "
+    cap(f"{len(ok)} restaurants qualify. With the default rule (more than 50 ratings, average above 4) these are "
         "Blue Ribbon Fried Chicken, Blue Ribbon Sushi, Shake Shack and The Meatball Shop.")
     insight("Only the very busiest restaurants can reach 50 ratings, because so many orders go unrated. More "
             "ratings would let smaller, well-liked restaurants qualify too.")
